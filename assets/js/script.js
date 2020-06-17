@@ -1,56 +1,54 @@
 var apiKey = "5ef693924f14c302ac503a8b08523d52";
-var url = "https://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
+var currentWeatherUrl = "https://api.openweathermap.org/data/2.5/weather?APPID="+apiKey; 
+var fiveDayForecastUrl = "https://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
 var uvUrl = "https://api.openweathermap.org/data/2.5/uvi?APPID="+apiKey;
 
 $("#search-button").click(function(){
     var city = $("#search-value").val();
     localStorage.setItem("lastCity", city);
-    $.ajax({
-        "url": url+"&q="+city,
-        "method": "GET"
-    }).then(function(response){
-        $(".list-group").prepend($("<button>").addClass("list-group-item").text(response.city.name+", "+response.city.country));
-        displayCityInfo(response);
-    });
+    $(".list-group").prepend($("<button>").addClass("list-group-item").text(city));
+    displayCityInfo(city);
 });
 
 $(document).on("click", ".list-group-item", function(){
     var city = $(this).text();
     localStorage.setItem("lastCity", city);
-    $.ajax({
-        "url": url+"&q="+city,
-        "method": "GET"
-    }).then(function(response){
-        displayCityInfo(response);
-    });
+    displayCityInfo(response);
 });
 
-function displayCityInfo(response){
-    setTodaysInfo(response);
-    setNextFiveDaysForecast(response);
+function displayCityInfo(city){
+    setTodaysInfo(city);
+    setNextFiveDaysForecast(city);
 }
 
-function setTodaysInfo(response) {
-    var today = $("#today");
-    var forecast = response.list[0];
-    
-    today.empty().append($("<h1>").append(response.city.name + " ("+ forecast.dt_txt.slice(0, 10)+")").append($("<img>").attr("src", "http://openweathermap.org/img/wn/"+forecast.weather[0].icon+"@2x.png")));
-    today.append($("<p>").text("Temperature: " + kelvinToFarenheit(forecast.main.temp) + " °F"));
-    today.append($("<p>").text("Humidity: " + forecast.main.humidity + "%"));
-    today.append($("<p>").text("Wind Speed: " + (forecast.wind.speed) + " MPH"));
-    getUVIndex(response.city.coord.lat, response.city.coord.lon);
+function setTodaysInfo(city) {
+    $.ajax({
+        "url": currentWeatherUrl+"&q="+city,
+        "method": "GET"
+    }).then(function(response){
+        var today = $("#today");
+        
+        today.empty().append($("<h1>").append(response.name + " (" + moment().format("MM/DD/yyyy") + ")").append($("<img>").attr("src", "http://openweathermap.org/img/wn/"+response.weather[0].icon+"@2x.png")));
+        today.append($("<p>").text("Temperature: " + kelvinToFarenheit(response.main.temp) + " °F"));
+        today.append($("<p>").text("Humidity: " + response.main.humidity + "%"));
+        today.append($("<p>").text("Wind Speed: " + (response.wind.speed) + " MPH"));
+        getUVIndex(response.coord.lat, response.coord.lon);
+    });
 }
 
-function setNextFiveDaysForecast(response){
+function setNextFiveDaysForecast(city){
     $("#forecastTitle").text("5-Day Forecast:");
-
-    for(var i = 1; i <= 5; i++) {
-        var dayWeather = response.list[(8*i)];
-        if(dayWeather == undefined){
-            dayWeather  = response.list[response.list.length-1];
+    $.ajax({
+        "url": fiveDayForecastUrl+"&q="+city,
+        "method": "GET"
+    }).then(function(response){
+        var num = 1;
+        for(var i = 4; i < response.list.length; i+=8) {
+            console.log(i);
+            var dayWeather = response.list[i];
+            addForecastCard(dayWeather, num++);
         }
-        addForecastCard(dayWeather, i);
-    }
+    });
 }
 
 function getUVIndex(lat, lon){
@@ -98,10 +96,5 @@ function kelvinToFarenheit(kelvin){
 
 var lastCity = localStorage.getItem("lastCity");
 if(lastCity != undefined){
-    $.ajax({
-        "url": url+"&q="+lastCity,
-        "method": "GET"
-    }).then(function(response){
-        displayCityInfo(response);
-    });
+    displayCityInfo(lastCity);
 }
