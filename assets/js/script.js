@@ -13,7 +13,7 @@ $("#search-button").click(function(){
 $(document).on("click", ".list-group-item", function(){
     var city = $(this).text();
     localStorage.setItem("lastCity", city);
-    displayCityInfo(response);
+    displayCityInfo(city);
 });
 
 function displayCityInfo(city){
@@ -44,7 +44,6 @@ function setNextFiveDaysForecast(city){
     }).then(function(response){
         var num = 1;
         for(var i = 4; i < response.list.length; i+=8) {
-            console.log(i);
             var dayWeather = response.list[i];
             addForecastCard(dayWeather, num++);
         }
