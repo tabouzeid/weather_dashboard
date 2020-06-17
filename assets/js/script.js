@@ -30,7 +30,7 @@ function setCityInfo(response) {
     var today = $("#today");
     var forecast = response.list[0];
     
-    today.empty().append($("<h1>").text(response.city.name + " ("+ forecast.dt_txt.slice(0, 10)+")"));
+    today.empty().append($("<h1>").append(response.city.name + " ("+ forecast.dt_txt.slice(0, 10)+")").append($("<img>").attr("src", "http://openweathermap.org/img/wn/"+forecast.weather[0].icon+"@2x.png")));
     today.append($("<p>").text("Temperature: " + kelvinToFarenheit(forecast.main.temp) + " °F"));
     today.append($("<p>").text("Humidity: " + forecast.main.humidity + "%"));
     today.append($("<p>").text("Wind Speed: " + (forecast.wind.speed) + " MPH"));
