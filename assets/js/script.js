@@ -1,5 +1,6 @@
 var apiKey = "5ef693924f14c302ac503a8b08523d52";
 var url = "https://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
+var uvUrl = "https://api.openweathermap.org/data/2.5/uvi?APPID="+apiKey;
 
 $("#search-button").click(function(){
     var city = $("#search-value").val();
@@ -24,7 +25,7 @@ $(document).on("click", ".list-group-item", function(){
         setNextFiveDaysForecast(response);
     });
 });
-    
+
 function setCityInfo(response) {
     var today = $("#today");
     var forecast = response.list[0];
@@ -33,7 +34,7 @@ function setCityInfo(response) {
     today.append($("<p>").text("Temperature: " + kelvinToFarenheit(forecast.main.temp) + " °F"));
     today.append($("<p>").text("Humidity: " + forecast.main.humidity + "%"));
     today.append($("<p>").text("Wind Speed: " + (forecast.wind.speed) + " MPH"));
-    // today.append($("<p>").text("UV Index: " + forecast.main.humidity + "%"));
+    getUVIndex(response.city.coord.lat, response.city.coord.lon);
 }
 
 function setNextFiveDaysForecast(response){
@@ -46,6 +47,32 @@ function setNextFiveDaysForecast(response){
         }
         addForecastCard(dayWeather, i);
     }
+}
+
+function getUVIndex(lat, lon){
+    $.ajax({
+        "url": uvUrl+"&lat="+lat+"&lon="+lon,
+        "method": "GET"
+    }).then(function(response){
+        console.log(response);
+        var uvIndex = parseFloat(response.value).toFixed(2);
+        var color = "green";
+        if(uvIndex <= 2){
+            color = "green";
+        } else if (uvIndex <= 7){
+            color = "yellow";
+        } else {
+            color = "red";
+        }
+        console.log("picking "+color);
+        var p = $("<p>");
+        var span = $("<span>");
+        span.css("background-color", color);
+        span.css("padding", "5px");
+        span.text(uvIndex);
+        p.append("UV Index: ").append(span);
+        $("#today").append(p);
+    });
 }
 
 function kelvinToFarenheit(kelvin){
