@@ -54,7 +54,6 @@ function getUVIndex(lat, lon){
         "url": uvUrl+"&lat="+lat+"&lon="+lon,
         "method": "GET"
     }).then(function(response){
-        console.log(response);
         var uvIndex = parseFloat(response.value).toFixed(2);
         var color = "green";
         if(uvIndex <= 2){
@@ -64,7 +63,6 @@ function getUVIndex(lat, lon){
         } else {
             color = "red";
         }
-        console.log("picking "+color);
         var p = $("<p>");
         var span = $("<span>");
         span.css("background-color", color);
