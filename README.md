@@ -1,4 +1,4 @@
-# weather_dashboard
+# Weather Dashboard
 
 This app allows the user to bring up the weather forecast for today as well as the enxt five days for the city enetered into the search field.
 
