@@ -15,13 +15,14 @@ $("#search-button").click(function(){
 });
     
 function setCityInfo(response) {
+    var today = $("#today");
+    var forecast = response.list[0];
     $(".list-group").prepend($("<button>").addClass("list-group-item").text(response.city.name+", "+response.city.country));
-    $("#today").empty().append($("<h1>").text(response.city.name + " ("+ response.list[0].dt_txt.slice(0, 10)+")"));
-    var tmpF = (((parseFloat(response.list[0].main.temp) - 273.15) * (9/5)) + 32).toFixed(2);
-    $("#today").append($("<p>").text("Temperature: " + tmpF + " °F"));
-    $("#today").append($("<p>").text("Humidity: " + response.list[0].main.humidity + "%"));
-    $("#today").append($("<p>").text("Wind Speed: " + (response.list[0].wind.speed) + " MPH"));
-    // $("#today").append($("<p>").text("UV Index: " + response.list[0].main.humidity + "%"));
+    today.empty().append($("<h1>").text(response.city.name + " ("+ forecast.dt_txt.slice(0, 10)+")"));
+    today.append($("<p>").text("Temperature: " + kelvinToFarenheit(forecast.main.temp) + " °F"));
+    today.append($("<p>").text("Humidity: " + forecast.main.humidity + "%"));
+    today.append($("<p>").text("Wind Speed: " + (forecast.wind.speed) + " MPH"));
+    // today.append($("<p>").text("UV Index: " + forecast.main.humidity + "%"));
 }
 
 function setNextFiveDaysForecast(response){
@@ -32,17 +33,25 @@ function setNextFiveDaysForecast(response){
         if(dayWeather == undefined){
             dayWeather  = response.list[response.list.length-1];
         }
-        var header = dayWeather.dt_txt.slice(0, 10);
-        var card = $("#card"+i).empty();
-        card.addClass("card text-white bg-primary mb-3").css("max-width: 18rem");
-        var cardHeader = $("<div>").addClass("card-header").text(header);
-        var cardBody = $("<div>").addClass("card-body");
-        var cardBodyTitle = $("<img>").attr("src", "http://openweathermap.org/img/wn/"+dayWeather.weather[0].icon+".png");
-        var tmpF = (((parseFloat(dayWeather.main.temp) - 273.15) * (9/5)) + 32).toFixed(2);
-        var cardBodyTemp = $("<p>").addClass("card-text").text("Temp: " + tmpF + " °F");
-        var cardBodyHumidity = $("<p>").addClass("card-text").text("Humidity: " + dayWeather.main.humidity + "%");
-        card.append(cardHeader);
-        card.append(cardBody);
-        cardBody.append(cardBodyTitle).append(cardBodyTemp).append(cardBodyHumidity);
+        addForecastCard(dayWeather, i);
     }
+}
+
+function kelvinToFarenheit(kelvin){
+    return (((parseFloat(kelvin) - 273.15) * (9/5)) + 32).toFixed(2);
+}
+
+function addForecastCard(dayWeather, cardNum){
+    var header = dayWeather.dt_txt.slice(0, 10);
+    var card = $("#card"+cardNum).empty();
+    card.addClass("card text-white bg-primary mb-3").css("max-width: 18rem");
+    var cardHeader = $("<div>").addClass("card-header").text(header);
+    var cardBody = $("<div>").addClass("card-body");
+    var cardBodyTitle = $("<img>").attr("src", "http://openweathermap.org/img/wn/"+dayWeather.weather[0].icon+".png");
+    var tmpF = kelvinToFarenheit(dayWeather.main.temp);
+    var cardBodyTemp = $("<p>").addClass("card-text").text("Temp: " + tmpF + " °F");
+    var cardBodyHumidity = $("<p>").addClass("card-text").text("Humidity: " + dayWeather.main.humidity + "%");
+    card.append(cardHeader);
+    card.append(cardBody);
+    cardBody.append(cardBodyTitle).append(cardBodyTemp).append(cardBodyHumidity);
 }
