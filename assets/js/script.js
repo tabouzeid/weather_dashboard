@@ -3,12 +3,23 @@ var url = "https://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
 
 $("#search-button").click(function(){
     var city = $("#search-value").val();
-
+    
     $.ajax({
         "url": url+"&q="+city,
         "method": "GET"
     }).then(function(response){
-        console.log(response);
+        $(".list-group").prepend($("<button>").addClass("list-group-item").text(response.city.name+", "+response.city.country));
+        setCityInfo(response);
+        setNextFiveDaysForecast(response);
+    });
+});
+
+$(document).on("click", ".list-group-item", function(){
+    var city = $(this).text();
+    $.ajax({
+        "url": url+"&q="+city,
+        "method": "GET"
+    }).then(function(response){
         setCityInfo(response);
         setNextFiveDaysForecast(response);
     });
@@ -17,7 +28,7 @@ $("#search-button").click(function(){
 function setCityInfo(response) {
     var today = $("#today");
     var forecast = response.list[0];
-    $(".list-group").prepend($("<button>").addClass("list-group-item").text(response.city.name+", "+response.city.country));
+    
     today.empty().append($("<h1>").text(response.city.name + " ("+ forecast.dt_txt.slice(0, 10)+")"));
     today.append($("<p>").text("Temperature: " + kelvinToFarenheit(forecast.main.temp) + " °F"));
     today.append($("<p>").text("Humidity: " + forecast.main.humidity + "%"));
