@@ -1,5 +1,5 @@
 var apiKey = "5ef693924f14c302ac503a8b08523d52";
-var url = "http://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
+var url = "https://api.openweathermap.org/data/2.5/forecast?APPID="+apiKey;
 
 $("#search-button").click(function(){
     var city = $("#search-value").val();
