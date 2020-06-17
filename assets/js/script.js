@@ -4,29 +4,33 @@ var uvUrl = "https://api.openweathermap.org/data/2.5/uvi?APPID="+apiKey;
 
 $("#search-button").click(function(){
     var city = $("#search-value").val();
-    
+    localStorage.setItem("lastCity", city);
     $.ajax({
         "url": url+"&q="+city,
         "method": "GET"
     }).then(function(response){
         $(".list-group").prepend($("<button>").addClass("list-group-item").text(response.city.name+", "+response.city.country));
-        setCityInfo(response);
-        setNextFiveDaysForecast(response);
+        displayCityInfo(response);
     });
 });
 
 $(document).on("click", ".list-group-item", function(){
     var city = $(this).text();
+    localStorage.setItem("lastCity", city);
     $.ajax({
         "url": url+"&q="+city,
         "method": "GET"
     }).then(function(response){
-        setCityInfo(response);
-        setNextFiveDaysForecast(response);
+        displayCityInfo(response);
     });
 });
 
-function setCityInfo(response) {
+function displayCityInfo(response){
+    setTodaysInfo(response);
+    setNextFiveDaysForecast(response);
+}
+
+function setTodaysInfo(response) {
     var today = $("#today");
     var forecast = response.list[0];
     
@@ -73,10 +77,6 @@ function getUVIndex(lat, lon){
     });
 }
 
-function kelvinToFarenheit(kelvin){
-    return (((parseFloat(kelvin) - 273.15) * (9/5)) + 32).toFixed(2);
-}
-
 function addForecastCard(dayWeather, cardNum){
     var header = dayWeather.dt_txt.slice(0, 10);
     var card = $("#card"+cardNum).empty();
@@ -90,4 +90,18 @@ function addForecastCard(dayWeather, cardNum){
     card.append(cardHeader);
     card.append(cardBody);
     cardBody.append(cardBodyTitle).append(cardBodyTemp).append(cardBodyHumidity);
+}
+
+function kelvinToFarenheit(kelvin){
+    return (((parseFloat(kelvin) - 273.15) * (9/5)) + 32).toFixed(2);
+}
+
+var lastCity = localStorage.getItem("lastCity");
+if(lastCity != undefined){
+    $.ajax({
+        "url": url+"&q="+lastCity,
+        "method": "GET"
+    }).then(function(response){
+        displayCityInfo(response);
+    });
 }
