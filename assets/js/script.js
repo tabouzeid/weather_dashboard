@@ -33,7 +33,7 @@ function setNextFiveDaysForecast(response){
             dayWeather  = response.list[response.list.length-1];
         }
         var header = dayWeather.dt_txt.slice(0, 10);
-        var card = $("#card"+i);
+        var card = $("#card"+i).empty();
         card.addClass("card text-white bg-primary mb-3").css("max-width: 18rem");
         var cardHeader = $("<div>").addClass("card-header").text(header);
         var cardBody = $("<div>").addClass("card-body");
